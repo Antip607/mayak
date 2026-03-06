@@ -3,50 +3,42 @@
 <head>
     <meta charset="utf-8">
     <title>Моя семья</title>
-    <!-- Подключаем MAX Bridge -->
     <script src="https://unpkg.com/@maxhq/bridge@latest/dist/bridge.min.js"></script>
     <style>
-        body { font-family: sans-serif; text-align: center; padding: 50px; }
-        .info { background: #f0f0f0; padding: 20px; border-radius: 10px; margin-top: 20px; }
+        body { font-family: sans-serif; text-align: center; padding: 20px; }
+        pre { background: #f4f4f4; padding: 10px; border-radius: 5px; text-align: left; overflow-x: auto; }
+        .info { background: #e8f0fe; padding: 20px; border-radius: 10px; margin-top: 20px; }
     </style>
 </head>
 <body>
     <h1>👨‍👩‍👧‍👦 Мини-приложение «Моя семья»</h1>
-    <div class="info" id="userInfo">Загрузка информации о пользователе...</div>
+    <div class="info" id="status">Проверка окружения...</div>
 
     <script>
-        // Функция для отображения данных пользователя
-        async function showUserInfo() {
+        window.addEventListener('load', async () => {
+            const statusDiv = document.getElementById('status');
             try {
-                // Проверяем, доступен ли MAX Bridge
-                if (window.MAXXRUNTIME && window.MAXXRUNTIME.callParams) {
-                    // Получаем параметры запуска (передаются при открытии мини-приложения)
+                // Проверяем наличие MAXXRUNTIME
+                if (window.MAXXRUNTIME && typeof window.MAXXRUNTIME.callParams === 'function') {
+                    statusDiv.innerHTML = '✅ MAXXRUNTIME обнаружен. Запрашиваем параметры...';
                     const params = await window.MAXXRUNTIME.callParams();
-                    // В params может быть информация о пользователе, например:
-                    // params.userId, params.userName, params.userAvatar и т.д.
-                    // Точный состав нужно уточнить, но для примера:
-                    const userId = params.userId || 'неизвестно';
-                    const userName = params.userName || 'Гость';
-                    
-                    document.getElementById('userInfo').innerHTML = `
-                        <p><strong>Привет, ${userName}!</strong></p>
-                        <p>Твой ID: ${userId}</p>
-                        <p>Здесь будет карта и настройки безопасности.</p>
+                    statusDiv.innerHTML = `
+                        <p><strong>✅ Успешно! Вы внутри MAX.</strong></p>
+                        <p>Полученные параметры:</p>
+                        <pre>${JSON.stringify(params, null, 2)}</pre>
                     `;
                 } else {
-                    // Если запущено не внутри MAX (например, в браузере)
-                    document.getElementById('userInfo').innerHTML = `
-                        <p>Приложение запущено вне MAX.</p>
-                        <p>Для тестирования внутри MAX используйте кнопку в боте.</p>
+                    statusDiv.innerHTML = `
+                        <p><strong>❌ MAXXRUNTIME не обнаружен.</strong></p>
+                        <p>Объект window.MAXXRUNTIME: ${window.MAXXRUNTIME}</p>
+                        <p>Страница открыта вне MAX (в браузере или другом приложении).</p>
+                        <p>Для теста откройте это мини-приложение через кнопку в боте внутри MAX.</p>
                     `;
                 }
             } catch (e) {
-                document.getElementById('userInfo').innerHTML = 'Ошибка получения данных: ' + e.message;
+                statusDiv.innerHTML = `<p><strong>❌ Ошибка при вызове MAXXRUNTIME.callParams:</strong> ${e.message}</p>`;
             }
-        }
-
-        // Вызываем функцию после загрузки страницы
-        window.addEventListener('load', showUserInfo);
+        });
     </script>
 </body>
 </html>

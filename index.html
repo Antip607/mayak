@@ -3,12 +3,50 @@
 <head>
     <meta charset="utf-8">
     <title>Моя семья</title>
+    <!-- Подключаем MAX Bridge -->
+    <script src="https://unpkg.com/@maxhq/bridge@latest/dist/bridge.min.js"></script>
     <style>
         body { font-family: sans-serif; text-align: center; padding: 50px; }
+        .info { background: #f0f0f0; padding: 20px; border-radius: 10px; margin-top: 20px; }
     </style>
 </head>
 <body>
     <h1>👨‍👩‍👧‍👦 Мини-приложение «Моя семья»</h1>
-    <p>Здесь будет карта и настройки безопасности.</p>
+    <div class="info" id="userInfo">Загрузка информации о пользователе...</div>
+
+    <script>
+        // Функция для отображения данных пользователя
+        async function showUserInfo() {
+            try {
+                // Проверяем, доступен ли MAX Bridge
+                if (window.MAXXRUNTIME && window.MAXXRUNTIME.callParams) {
+                    // Получаем параметры запуска (передаются при открытии мини-приложения)
+                    const params = await window.MAXXRUNTIME.callParams();
+                    // В params может быть информация о пользователе, например:
+                    // params.userId, params.userName, params.userAvatar и т.д.
+                    // Точный состав нужно уточнить, но для примера:
+                    const userId = params.userId || 'неизвестно';
+                    const userName = params.userName || 'Гость';
+                    
+                    document.getElementById('userInfo').innerHTML = `
+                        <p><strong>Привет, ${userName}!</strong></p>
+                        <p>Твой ID: ${userId}</p>
+                        <p>Здесь будет карта и настройки безопасности.</p>
+                    `;
+                } else {
+                    // Если запущено не внутри MAX (например, в браузере)
+                    document.getElementById('userInfo').innerHTML = `
+                        <p>Приложение запущено вне MAX.</p>
+                        <p>Для тестирования внутри MAX используйте кнопку в боте.</p>
+                    `;
+                }
+            } catch (e) {
+                document.getElementById('userInfo').innerHTML = 'Ошибка получения данных: ' + e.message;
+            }
+        }
+
+        // Вызываем функцию после загрузки страницы
+        window.addEventListener('load', showUserInfo);
+    </script>
 </body>
 </html>
